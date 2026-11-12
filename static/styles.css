@@ -5438,3 +5438,239 @@ body.arrival-open {
 .cinematic-arrival.archive-loading.archive-copy-reveal .cinema-copy {
   animation: cinemaBeatIn .52s cubic-bezier(.2, .7, .2, 1) both;
 }
+
+
+/* iPhone-first arrival composition: stage owns the centring; no fixed-width child can escape the viewport. */
+.cinematic-arrival {
+  box-sizing: border-box !important;
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  height: 100vh !important;
+  height: 100svh !important;
+  height: 100dvh !important;
+  min-height: 0 !important;
+  padding-top: max(12px, env(safe-area-inset-top)) !important;
+  padding-right: max(16px, env(safe-area-inset-right)) !important;
+  padding-bottom: max(14px, env(safe-area-inset-bottom)) !important;
+  padding-left: max(16px, env(safe-area-inset-left)) !important;
+  display: grid !important;
+  grid-template-rows: auto minmax(0, 1fr) auto !important;
+  overflow: hidden !important;
+}
+
+.cinematic-arrival .cinema-stage {
+  position: relative !important;
+  display: grid !important;
+  place-items: center !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  height: 100% !important;
+  overflow: hidden !important;
+}
+
+.cinematic-arrival .cinema-copy {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  padding: 12px !important;
+  box-sizing: border-box !important;
+  display: grid !important;
+  place-items: center !important;
+  text-align: center !important;
+}
+
+.cinematic-arrival.location-phase .location-choice {
+  position: relative !important;
+  inset: auto !important;
+  left: auto !important;
+  top: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  transform: none !important;
+  box-sizing: border-box !important;
+  width: min(100%, 340px) !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: clamp(12px, 2.2svh, 18px) !important;
+  text-align: center !important;
+}
+
+.cinematic-arrival.location-phase .location-choice p {
+  display: block !important;
+  width: 100% !important;
+  max-width: 330px !important;
+  margin: 0 !important;
+  padding: 0 4px !important;
+  font-size: clamp(20px, 5.4vw, 25px) !important;
+  line-height: 1.12 !important;
+  text-align: center !important;
+  text-wrap: balance !important;
+  overflow-wrap: anywhere !important;
+}
+
+.cinematic-arrival.location-phase .location-choice .arrival-primary {
+  display: flex !important;
+  box-sizing: border-box !important;
+  width: min(100%, 300px) !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  min-height: 50px !important;
+  padding: 13px 14px !important;
+  justify-content: center !important;
+  white-space: normal !important;
+  font-size: 8px !important;
+  letter-spacing: .12em !important;
+}
+
+.cinematic-arrival.location-phase .location-choice .arrival-skip {
+  display: inline-flex !important;
+  max-width: 100% !important;
+  padding: 8px 4px !important;
+  font-size: 7px !important;
+  letter-spacing: .09em !important;
+  white-space: normal !important;
+  text-align: center !important;
+}
+
+.cinematic-arrival .globe-reveal {
+  width: min(74vw, 52svh, 360px) !important;
+  max-width: calc(100% - 20px) !important;
+  max-height: calc(100% - 100px) !important;
+  aspect-ratio: 1 !important;
+}
+
+.cinematic-arrival .earth-frame {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.cinematic-arrival #earthCanvas {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+}
+
+.cinematic-arrival .globe-readout {
+  bottom: -31px !important;
+  top: auto !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  gap: 3px !important;
+  line-height: 1.45 !important;
+  font-size: 5.5px !important;
+  letter-spacing: .09em !important;
+}
+
+.cinematic-arrival .globe-readout b {
+  font-size: 5.5px !important;
+  letter-spacing: .04em !important;
+  line-height: 1.4 !important;
+}
+
+.cinematic-arrival .arrival-top,
+.cinematic-arrival .arrival-bottom {
+  font-size: clamp(5px, 1.45vw, 7px) !important;
+  letter-spacing: .055em !important;
+  gap: 8px !important;
+  min-width: 0 !important;
+}
+
+.cinematic-arrival .arrival-top span,
+.cinematic-arrival .arrival-bottom span {
+  min-width: 0 !important;
+}
+
+.cinematic-arrival .arrival-top span:last-child,
+.cinematic-arrival .arrival-bottom span:last-child {
+  text-align: right !important;
+}
+
+.cinematic-arrival.archive-loading .cinema-copy {
+  position: relative !important;
+  inset: auto !important;
+  width: min(100%, 680px) !important;
+  height: auto !important;
+  padding: 12px !important;
+  display: block !important;
+  margin: auto !important;
+  text-align: center !important;
+}
+
+.cinematic-arrival.archive-loading .cinema-copy h2 {
+  font-size: clamp(36px, 8vw, 68px) !important;
+  line-height: .96 !important;
+  margin: 8px 0 !important;
+}
+
+.cinematic-arrival.archive-loading .cinema-copy .sequence-kicker {
+  font-size: 7px !important;
+}
+
+.cinematic-arrival.archive-loading .cinema-copy .sequence-line {
+  font-size: 10px !important;
+}
+
+@media(max-width:480px) {
+  .cinematic-arrival .arrival-top span:last-child {
+    max-width: 44%;
+  }
+
+  .cinematic-arrival .globe-reveal {
+    width: min(72vw, 43svh, 310px) !important;
+    max-height: calc(100% - 88px) !important;
+  }
+
+  .cinematic-arrival .globe-readout {
+    bottom: -27px !important;
+  }
+
+  .cinematic-arrival.location-phase .location-choice {
+    width: min(100%, 320px) !important;
+    gap: 14px !important;
+  }
+
+  .cinematic-arrival.location-phase .location-choice p {
+    font-size: clamp(19px, 5.8vw, 24px) !important;
+  }
+
+  .cinematic-arrival.location-phase .location-choice .arrival-primary {
+    width: min(100%, 290px) !important;
+    min-height: 48px !important;
+  }
+}
+
+@media(max-height:520px) and (orientation:landscape) {
+  .cinematic-arrival.location-phase .location-choice {
+    gap: 7px !important;
+  }
+
+  .cinematic-arrival.location-phase .location-choice p {
+    font-size: clamp(16px, 4.5vh, 20px) !important;
+  }
+
+  .cinematic-arrival.location-phase .location-choice .arrival-primary {
+    min-height: 38px !important;
+    padding: 8px 12px !important;
+  }
+
+  .cinematic-arrival .globe-reveal {
+    width: min(48vh, 52vw, 280px) !important;
+    max-height: calc(100% - 68px) !important;
+  }
+}
+
+.cinematic-arrival.location-phase .cinema-copy>*:not(.location-choice) {
+  display: none !important;
+}
