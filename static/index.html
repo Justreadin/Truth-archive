@@ -16,13 +16,48 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 
-<body>
+<body class="arrival-open">
     <div class="grain" aria-hidden="true"></div>
+    <div class="arrival cinematic-arrival" id="arrival" role="dialog" aria-modal="true"
+        aria-label="Loading the Compendium">
+        <div class="arrival-grain" aria-hidden="true"></div>
+        <div class="arrival-top"><span>FAVOUR AKINTOYE / COMPENDIUM I</span><span>AN INSTRUMENT FOR THE OBSERVER</span>
+        </div>
+        <div class="cinema-stage" id="cinemaStage">
+            <div class="cinema-copy" id="cinemaCopy">
+                <div class="sequence-kicker" id="sequenceKicker"><i></i><span>INITIALISING</span></div>
+                <h2 id="cinemaTitle">Loading<br><em>Compendium.</em></h2>
+                <p class="sequence-line" id="sequenceLine">A record of things built, questions examined, and systems set
+                    in motion.</p>
+                <div class="cinema-readout" id="cinemaReadout" aria-live="polite"></div>
+                <div class="location-choice" id="locationChoice" hidden>
+                    <p>Set the instrument to your position.</p>
+                    <button class="arrival-primary" id="locateAndEnter" type="button">USE MY LOCATION</button>
+                    <button class="arrival-skip" id="enterWithoutLocation" type="button">CONTINUE WITHOUT
+                        LOCATION</button>
+                </div>
+            </div>
+            <div class="mechanical-compendium globe-reveal" id="compendiumReveal" aria-hidden="true">
+                <div class="globe-aura"></div>
+                <div class="earth-frame">
+                    <canvas id="earthCanvas"
+                        aria-label="Illustrated orthographic Earth with latitude and longitude graticules, city labels and triangulated observer position"></canvas>
+                    <div class="earth-atmosphere"></div>
+                    <div class="earth-reticle" aria-hidden="true"></div>
+                </div>
+                <div class="globe-readout"><span id="instrumentLabel">LOCATING OBSERVER</span><b
+                        id="instrumentLocation">POSITION / PENDING</b></div>
+            </div>
+        </div>
+        <div class="arrival-bottom"><span id="arrivalStatusText">INITIALISING THE OBSERVER</span><span
+                id="arrivalProgressLabel">01 / CONTEXT</span></div>
+    </div>
+
     <header class="topbar"><a class="brand" href="#threshold"><span class="seal">FA</span><span>FAVOUR AKINTOYE <i>/
                     COMPENDIUM</i></span></a>
         <div class="top-meta"><span class="live-dot"></span><span>AN ONGOING COLLECTION</span><time
                 id="localClock">LOCAL TIME · --:--:--</time><a href="#index">INDEX ↘</a></div><button
-            class="menu-toggle" id="menuToggle" aria-label="Open navigation">☰</button>
+            class="menu-toggle" id="menuToggle" aria-label="Open navigation"><span></span><span></span></button>
     </header>
     <nav class="mobile-nav" id="mobileNav"><a href="#index">The index</a><a href="#instruments">Instruments</a><a
             href="#works">The works</a><a href="#operations">Operations</a><a href="#library">Research library</a><a
@@ -52,11 +87,11 @@
                 <div class="astrolabe-shell"><svg id="heroAstrolabe" viewBox="0 0 600 600" role="img"
                         aria-label="Interactive astrolabe. Drag the rete to rotate the star map."></svg><span
                         class="drag-hint">DRAG THE OPENWORK RETE</span></div>
-                <div class="object-caption"><span>RETE / ROTATABLE</span><span id="heroAstroReadout">LAT. 7.38° N ·
+                <div class="object-caption"><span>RETE / ROTATABLE</span><span id="heroAstroReadout">LAT. 7.25° N ·
                         000°</span></div>
             </div>
             <div class="hero-foot"><span>PRODUCT / TECHNOLOGY / STRATEGY / RESEARCH</span><span
-                    id="heroLocation">REFERENCE / IBADAN · USE MY LOCATION</span></div>
+                    id="heroLocation">REFERENCE / AKURE · USE MY LOCATION</span></div>
         </section>
         <section class="intro-strip"><span class="section-index">PROEM / 00</span>
             <p>This is not a catalogue of credentials. It is an instrument for examining the work: how it was conceived,
@@ -470,7 +505,7 @@
                     <h2>A body of work,<br><em>in time.</em></h2>
                 </div>
                 <p>The nocturnal's calendar and rotating index become a chronology. Select a year to reveal the
-                    corresponding work, rather than merely moving a decorative pointer.</p>
+                    corresponding work.</p>
             </div>
             <div class="nocturnal-layout">
                 <div class="nocturnal"><svg id="nocturnalSvg" viewBox="0 0 500 500" role="img"
@@ -516,14 +551,14 @@
                         BRASS</span></div>
                 <div class="cabinet-grid"><button class="cabinet-door" data-drawer="biography"><span
                             class="cabinet-number">01</span><span
-                            class="cabinet-icon">✧</span><b>BIOGRAPHICAL<br>NOTE</b><small>OPEN COMPARTMENT
+                            class="cabinet-icon">I</span><b>BIOGRAPHICAL<br>NOTE</b><small>OPEN COMPARTMENT
                             ↗</small></button><button class="cabinet-door" data-drawer="practice"><span
-                            class="cabinet-number">02</span><span class="cabinet-icon">⌘</span><b>DISCIPLINES<br>&
+                            class="cabinet-number">02</span><span class="cabinet-icon">II</span><b>DISCIPLINES<br>&
                             PRACTICE</b><small>OPEN COMPARTMENT ↗</small></button><button class="cabinet-door"
                         data-drawer="experience"><span class="cabinet-number">03</span><span
-                            class="cabinet-icon">▤</span><b>SELECTED<br>EXPERIENCE</b><small>OPEN COMPARTMENT
+                            class="cabinet-icon">III</span><b>SELECTED<br>EXPERIENCE</b><small>OPEN COMPARTMENT
                             ↗</small></button><button class="cabinet-door" data-drawer="observations"><span
-                            class="cabinet-number">04</span><span class="cabinet-icon">✎</span><b>OBSERVATIONS<br>&
+                            class="cabinet-number">04</span><span class="cabinet-icon">IV</span><b>OBSERVATIONS<br>&
                             QUESTIONS</b><small>OPEN COMPARTMENT ↗</small></button></div>
                 <div class="drawer-content" id="drawerContent" aria-live="polite"><span class="small-label">THE CABINET
                         IS CLOSED</span>
@@ -544,13 +579,13 @@
                             class="compass-se">SE</span><span class="compass-s">S</span><span
                             class="compass-sw">SW</span><span class="compass-w">W</span><span
                             class="compass-nw">NW</span><i class="compass-needle"></i><button data-contact="email"
-                            class="compass-hotspot hs-n" aria-label="Email">✉</button><button data-contact="resume"
+                            class="compass-hotspot hs-n" aria-label="Email">MAIL</button><button data-contact="resume"
                             class="compass-hotspot hs-ne" aria-label="Resume">CV</button><button data-contact="substack"
-                            class="compass-hotspot hs-e" aria-label="Substack">▤</button><button
+                            class="compass-hotspot hs-e" aria-label="Substack">SUB</button><button
                             data-contact="portfolio" class="compass-hotspot hs-se"
                             aria-label="Portfolio PDF">PDF</button><button data-contact="github"
-                            class="compass-hotspot hs-s" aria-label="GitHub">⌘</button><button data-contact="x"
-                            class="compass-hotspot hs-sw" aria-label="X">𝕏</button><button data-contact="payla"
+                            class="compass-hotspot hs-s" aria-label="GitHub">CODE</button><button data-contact="x"
+                            class="compass-hotspot hs-sw" aria-label="X">X</button><button data-contact="payla"
                             class="compass-hotspot hs-w" aria-label="Payla">↗</button><button data-contact="whatsapp"
                             class="compass-hotspot hs-nw" aria-label="WhatsApp">WA</button></div>
                     <div class="contact-readout" aria-live="polite"><span id="contactKind">CORRESPONDENCE / SELECT A
@@ -561,11 +596,11 @@
                     </div>
                 </div>
                 <div class="colophon"><span>FAVOUR AKINTOYE / COMPENDIUM I</span><span>AN ONGOING COLLECTION ·
-                        2026</span><span id="footerLocation">REFERENCE / IBADAN · LOCATION NOT YET SHARED</span></div>
+                        2026</span><span id="footerLocation">REFERENCE / AKURE · LOCATION NOT YET SHARED</span></div>
             </div>
         </section>
     </main>
-    <footer class="footer"><a href="#threshold">FA / COMPENDIUM</a><span>THE RECORD IS OPEN TO REVISION.</span><a
+    <footer class="footer"><a href="#threshold">FAVOUR / COMPENDIUM</a><span>THE RECORD IS OPEN TO REVISION.</span><a
             href="#threshold">RETURN TO THE THRESHOLD ↑</a></footer>
     <script src="app.js"></script>
 </body>

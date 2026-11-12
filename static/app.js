@@ -1,7 +1,210 @@
 (()=>{'use strict';
 const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)], NS='http://www.w3.org/2000/svg';
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)), rad=d=>d*Math.PI/180, deg=r=>r*180/Math.PI, fmt=(v,n=1)=>Number(v).toFixed(n);
-const now=new Date();let observerLat=7.38,observerLon=3.95,observerLabel='REFERENCE / IBADAN';
+const arrival=$('#arrival');
+const FALLBACK_POSITION={lat:7.2526,lon:5.1931,label:'AKURE, NIGERIA'};
+const browserTimeZone=()=>Intl.DateTimeFormat().resolvedOptions().timeZone||'LOCAL TIME';
+function deviceClass(){const ua=navigator.userAgent||'';return /tablet|ipad/i.test(ua)?'TABLET':/mobi|android|iphone/i.test(ua)?'MOBILE':'DESKTOP';}
+function systemName(){const platform=navigator.userAgentData?.platform||navigator.platform||'SYSTEM';return String(platform).replace(/[^a-z0-9 _.-]/gi,'').slice(0,22).toUpperCase();}
+function formatCoordinate(value,positive,negative){return `${Math.abs(value).toFixed(4)}° ${value>=0?positive:negative}`;}
+function updateArrivalClock(){const d=new Date();return new Intl.DateTimeFormat('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(d);}
+function setCenterBeat(kicker,title,line,detail,status,step){
+ const copy=$('#cinemaCopy');copy.classList.remove('beat-in');copy.classList.add('beat-out');
+ setTimeout(()=>{
+  $('#sequenceKicker').lastElementChild.textContent=kicker;
+  $('#cinemaTitle').innerHTML=title;
+  $('#sequenceLine').textContent=line;
+  $('#cinemaReadout').textContent=detail||'';
+  $('#arrivalStatusText').textContent=status;
+  $('#arrivalProgressLabel').textContent=step;
+  copy.classList.remove('beat-out');copy.classList.add('beat-in');
+ },440);
+}
+function startArrivalSequence(){
+ const info=[
+  ['LOCAL TIME',updateArrivalClock()],
+  ['TIME ZONE',browserTimeZone().replaceAll('_',' ').toUpperCase()],
+  ['DEVICE',deviceClass()],
+  ['SYSTEM',systemName()],
+  ['DISPLAY',`${screen.width} × ${screen.height}`]
+ ];
+ let i=0;
+ const next=()=>{
+  if(i>=info.length){
+   const copy=$('#cinemaCopy');copy.classList.remove('beat-out');copy.classList.add('beat-in');
+   setTimeout(()=>{
+    arrival.classList.add('location-phase');
+    $('#locationChoice').hidden=false;
+    $('#locationChoice').classList.add('choice-in');
+    $('#arrivalStatusText').textContent='AWAITING POSITION';
+    $('#arrivalProgressLabel').textContent='02 / POSITION';
+   },460);
+   return;
+  }
+  const [label,value]=info[i++];
+  setCenterBeat(label,`<em>${value}</em>`,'',`${String(i).padStart(2,'0')} / 05`, 'READING DEVICE CONTEXT',`01 / CONTEXT · ${i} OF 5`);
+  setTimeout(next,1550);
+ };
+ setTimeout(next,850);
+}
+function closeArrival(){arrival.classList.add('is-leaving');document.body.classList.remove('arrival-open');setTimeout(()=>arrival.remove(),1050);}
+let compendiumAudioContext=null;
+function prepareCompendiumAudio(){
+ try{
+  const AudioCtx=window.AudioContext||window.webkitAudioContext;
+  if(!AudioCtx)return;
+  if(!compendiumAudioContext)compendiumAudioContext=new AudioCtx();
+  if(compendiumAudioContext.state==='suspended')compendiumAudioContext.resume();
+ }catch(e){}
+}
+function playCompendiumRotationSound(){
+ try{
+  const AudioCtx=window.AudioContext||window.webkitAudioContext;
+  if(!AudioCtx)return;
+  if(!compendiumAudioContext)compendiumAudioContext=new AudioCtx();
+  const ctx=compendiumAudioContext;
+  if(ctx.state==='suspended')ctx.resume();
+  const now=ctx.currentTime,duration=3.5;
+  const master=ctx.createGain();master.gain.setValueAtTime(0.0001,now);master.gain.exponentialRampToValueAtTime(.11,now+.18);master.gain.exponentialRampToValueAtTime(.0001,now+duration);master.connect(ctx.destination);
+  // Low brass-like rotational bed.
+  const drone=ctx.createOscillator(),droneGain=ctx.createGain(),filter=ctx.createBiquadFilter();
+  drone.type='sawtooth';drone.frequency.setValueAtTime(72,now);drone.frequency.exponentialRampToValueAtTime(155,now+1.05);drone.frequency.exponentialRampToValueAtTime(48,now+duration);
+  filter.type='lowpass';filter.frequency.setValueAtTime(420,now);filter.frequency.exponentialRampToValueAtTime(1050,now+1.1);filter.frequency.exponentialRampToValueAtTime(230,now+duration);
+  droneGain.gain.value=.22;drone.connect(filter);filter.connect(droneGain);droneGain.connect(master);drone.start(now);drone.stop(now+duration+.05);
+  // Fine ratchet: short, softly filtered metal ticks accelerating then slowing.
+  const tickCount=27;
+  for(let i=0;i<tickCount;i++){
+   const progress=i/(tickCount-1);
+   const t=now+.12+progress*3.12;
+   const osc=ctx.createOscillator(),gain=ctx.createGain(),tone=ctx.createBiquadFilter();
+   osc.type='triangle';
+   const freq=progress<.55?880+progress*540:1180-(progress-.55)*1450;
+   osc.frequency.setValueAtTime(Math.max(180,freq),t);
+   tone.type='bandpass';tone.frequency.value=1700;tone.Q.value=3.5;
+   gain.gain.setValueAtTime(.0001,t);gain.gain.exponentialRampToValueAtTime(.035,t+.004);gain.gain.exponentialRampToValueAtTime(.0001,t+.045);
+   osc.connect(tone);tone.connect(gain);gain.connect(master);osc.start(t);osc.stop(t+.05);
+  }
+  // A restrained resonant settling click.
+  const end=ctx.createOscillator(),endGain=ctx.createGain();
+  end.type='sine';end.frequency.setValueAtTime(520,now+3.32);end.frequency.exponentialRampToValueAtTime(180,now+3.58);
+  endGain.gain.setValueAtTime(.0001,now+3.32);endGain.gain.exponentialRampToValueAtTime(.09,now+3.34);endGain.gain.exponentialRampToValueAtTime(.0001,now+3.62);
+  end.connect(endGain);endGain.connect(ctx.destination);end.start(now+3.32);end.stop(now+3.64);
+ }catch(e){/* Audio is an enhancement; the visual sequence remains complete without it. */}
+}
+
+let earthRenderer=null;
+function createEarthRenderer(){
+ const canvas=$('#earthCanvas');if(!canvas||earthRenderer)return earthRenderer;
+ const ctx=canvas.getContext('2d',{alpha:true});if(!ctx)return null;const TAU=Math.PI*2;
+ const continents=[
+ [[-168,70],[-145,70],[-130,55],[-124,48],[-117,32],[-105,23],[-97,18],[-86,21],[-82,9],[-77,8],[-80,25],[-96,29],[-105,49],[-124,60],[-140,69]],
+ [[-81,12],[-70,10],[-62,-5],[-54,-12],[-48,-23],[-52,-34],[-66,-55],[-73,-42],[-78,-18]],
+ [[-11,36],[-8,50],[4,58],[18,70],[35,69],[48,58],[38,45],[28,36],[14,37],[4,43],[-5,36]],
+ [[-17,35],[2,37],[22,32],[34,19],[43,10],[50,-12],[39,-34],[24,-35],[14,-26],[3,-5],[-8,5],[-17,17]],
+ [[35,70],[58,72],[85,68],[105,74],[130,68],[158,60],[178,52],[160,42],[143,36],[128,30],[120,20],[108,8],[99,6],[91,20],[78,8],[68,24],[55,25],[45,38],[35,48]],
+ [[112,-11],[130,-12],[146,-18],[153,-28],[145,-39],[130,-36],[115,-29]],
+ [[-52,60],[-42,60],[-35,72],[-43,83],[-55,82],[-62,70]],[[47,-13],[51,-16],[50,-25],[45,-24]]
+ ];
+ let detailedCoastlines=[];
+ const cities=[['LAGOS',3.4,6.5],['ABUJA',7.5,9.1],['ACCRA',-.2,5.6],['NAIROBI',36.8,-1.3],['CAIRO',31.2,30],['CAPE TOWN',18.4,-33.9],['LONDON',-.1,51.5],['PARIS',2.35,48.9],['ISTANBUL',28.9,41],['DUBAI',55.3,25.2],['MUMBAI',72.9,19.1],['SINGAPORE',103.8,1.3],['TOKYO',139.7,35.7],['BEIJING',116.4,39.9],['SYDNEY',151.2,-33.9],['NEW YORK',-74,40.7],['MEXICO CITY',-99.1,19.4],['RIO',-43.2,-22.9]];
+ let width=0,height=0,dpr=1,yaw=0,pitch=0,targetYaw=0,targetPitch=0,marker=[0,0],active=false,dragging=false,lastX=0,lastY=0,raf=0,spinStart=0,spinFrom=0,spinTo=0,spinning=false,settledAt=0;
+ function resize(){const r=canvas.getBoundingClientRect();dpr=Math.min(window.devicePixelRatio||1,2);width=Math.max(1,r.width);height=Math.max(1,r.height);canvas.width=Math.round(width*dpr);canvas.height=Math.round(height*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);}
+ // WGS 84 reference ellipsoid (flattening 1/298.257223563); geodetic latitude is converted to an ellipsoid-normal surface vector.
+ const WGS84_F=1/298.257223563,WGS84_E2=WGS84_F*(2-WGS84_F);
+ const vec=(lon,lat)=>{const l=rad(lon),p=rad(lat),N=1/Math.sqrt(1-WGS84_E2*Math.sin(p)**2);return [N*Math.cos(p)*Math.sin(l),(1-WGS84_E2)*N*Math.sin(p),N*Math.cos(p)*Math.cos(l)];};
+ function rotate(v){let [x,y,z]=v,c=Math.cos(yaw),s=Math.sin(yaw);[x,z]=[x*c+z*s,-x*s+z*c];c=Math.cos(pitch);s=Math.sin(pitch);[y,z]=[y*c-z*s,y*s+z*c];return [x,y,z];}
+ function project(lon,lat,R){const v=rotate(vec(lon,lat));return {x:width/2+v[0]*R,y:height/2-v[1]*R,z:v[2]};}
+ function line(points,R,stroke,lw=1,alpha=1,dash=[]){ctx.beginPath();let started=false;for(const [lon,lat] of points){const q=project(lon,lat,R);if(q.z<=.015){started=false;continue;}if(!started){ctx.moveTo(q.x,q.y);started=true;}else ctx.lineTo(q.x,q.y);}ctx.strokeStyle=stroke;ctx.globalAlpha=alpha;ctx.lineWidth=lw;ctx.setLineDash(dash);ctx.stroke();ctx.setLineDash([]);ctx.globalAlpha=1;}
+ function drawPolygon(poly,R){const pts=[];for(let i=0;i<poly.length;i++){const a=poly[i],b=poly[(i+1)%poly.length];for(let j=0;j<6;j++){const t=j/6;pts.push([a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t]);}}pts.push(poly[0]);let run=[];const stroke=()=>{if(run.length>1){ctx.beginPath();ctx.moveTo(run[0].x,run[0].y);run.slice(1).forEach(q=>ctx.lineTo(q.x,q.y));ctx.strokeStyle='#d0bd99';ctx.lineWidth=1.35;ctx.globalAlpha=.9;ctx.stroke();}run=[];};for(const p of pts){const q=project(p[0],p[1],R);if(q.z>.015)run.push(q);else stroke();}stroke();ctx.globalAlpha=1;}
+ function draw(t){if(!active)return;const R=Math.min(width,height)*.405;ctx.clearRect(0,0,width,height);
+  const g=ctx.createRadialGradient(width/2-R*.3,height/2-R*.35,R*.05,width/2,height/2,R*1.15);g.addColorStop(0,'#245b70');g.addColorStop(.58,'#12384d');g.addColorStop(1,'#06121c');ctx.beginPath();ctx.arc(width/2,height/2,R,0,TAU);ctx.fillStyle=g;ctx.fill();ctx.save();ctx.beginPath();ctx.arc(width/2,height/2,R,0,TAU);ctx.clip();
+  for(let lat=-75;lat<=75;lat+=15){const pts=[];for(let lon=-180;lon<=180;lon+=3)pts.push([lon,lat]);line(pts,R,lat===0?'#d9bd89':'#a9c3c833',lat===0?1.2:.7,lat===0?.8:1);}
+  for(let lon=-180;lon<180;lon+=15){const pts=[];for(let lat=-90;lat<=90;lat+=3)pts.push([lon,lat]);line(pts,R,lon===0?'#d9bd89':'#a9c3c833',lon===0?1.2:.7,lon===0?.8:1);}
+  continents.forEach(p=>drawPolygon(p,R));
+  if(detailedCoastlines.length){ctx.save();ctx.lineWidth=.72;ctx.strokeStyle='#d8c7a8';ctx.globalAlpha=.9;for(const poly of detailedCoastlines){let run=[];for(const point of poly){const q=project(point[0],point[1],R);if(q.z>.015)run.push(q);else if(run.length>1){ctx.beginPath();ctx.moveTo(run[0].x,run[0].y);run.slice(1).forEach(v=>ctx.lineTo(v.x,v.y));ctx.stroke();run=[];}else run=[];}if(run.length>1){ctx.beginPath();ctx.moveTo(run[0].x,run[0].y);run.slice(1).forEach(v=>ctx.lineTo(v.x,v.y));ctx.stroke();}}ctx.restore();}
+  ctx.restore();
+  ctx.beginPath();ctx.arc(width/2,height/2,R,0,TAU);ctx.strokeStyle='#b9d8df99';ctx.lineWidth=2;ctx.stroke();ctx.beginPath();ctx.arc(width/2,height/2,R+7,0,TAU);ctx.strokeStyle='#c6a36d';ctx.globalAlpha=.8;ctx.lineWidth=.8;ctx.stroke();ctx.globalAlpha=1;
+  cities.forEach(([name,lon,lat])=>{const q=project(lon,lat,R);if(q.z<.2)return;ctx.fillStyle='#f0d9ac';ctx.beginPath();ctx.arc(q.x,q.y,1.7,0,TAU);ctx.fill();ctx.font=`${Math.max(7,Math.min(9,R*.022))}px ui-monospace,monospace`;ctx.fillText(name,q.x+5,q.y-5);});
+  const [mlat,mlon]=marker,stations=[{name:'NORTH ATLANTIC',lon:-22,lat:35},{name:'INDIAN OCEAN',lon:78,lat:24},{name:'SOUTH PACIFIC',lon:-112,lat:-18}];
+  const unit=(lon,lat)=>{const p=rad(lat),l=rad(lon);return [Math.cos(p)*Math.cos(l),Math.cos(p)*Math.sin(l),Math.sin(p)];};
+  stations.forEach(st=>{const a=unit(st.lon,st.lat),b=unit(mlon,mlat),dot=clamp(a[0]*b[0]+a[1]*b[1]+a[2]*b[2],-1,1),omega=Math.acos(dot),sinO=Math.sin(omega),pts=[];for(let j=0;j<=96;j++){const t=j/96,k1=sinO?Math.sin((1-t)*omega)/sinO:1-t,k2=sinO?Math.sin(t*omega)/sinO:t,v=[a[0]*k1+b[0]*k2,a[1]*k1+b[1]*k2,a[2]*k1+b[2]*k2],vl=Math.hypot(...v);pts.push([deg(Math.atan2(v[1],v[0])),deg(Math.asin(v[2]/vl))]);}line(pts,R,'#f0c77f',1.25,.92,[4,4]);const q=project(st.lon,st.lat,R);if(q.z>.05){ctx.beginPath();ctx.arc(q.x,q.y,3,0,TAU);ctx.fillStyle='#e0b978';ctx.fill();ctx.font='6px ui-monospace,monospace';ctx.fillStyle='#e8d1a6';ctx.fillText(st.name,q.x+5,q.y-4);}});
+  const q=project(mlon,mlat,R);if(q.z>0){const pulse=1+Math.sin(t/180)*.18;ctx.save();ctx.translate(q.x,q.y);ctx.strokeStyle='#f5d8a0';ctx.lineWidth=1;ctx.beginPath();ctx.arc(0,0,8*pulse,0,TAU);ctx.stroke();ctx.beginPath();ctx.moveTo(-16,0);ctx.lineTo(-5,0);ctx.moveTo(5,0);ctx.lineTo(16,0);ctx.moveTo(0,-16);ctx.lineTo(0,-5);ctx.moveTo(0,5);ctx.lineTo(0,16);ctx.stroke();ctx.beginPath();ctx.arc(0,0,2.5,0,TAU);ctx.fillStyle='#fff1ce';ctx.fill();ctx.restore();}
+  ctx.fillStyle='#d4b987';ctx.font='8px ui-monospace,monospace';ctx.textAlign='center';ctx.fillText('90° N',width/2,height/2-R-17);ctx.fillText('EQUATOR',width/2+R+34,height/2+3);ctx.fillText('90° S',width/2,height/2+R+19);ctx.textAlign='left';
+  // Degree labels are projected with the same spherical transform as the graticule.
+  ctx.font='7px ui-monospace,monospace';ctx.fillStyle='#d5bd91';
+  for(let lat=-60;lat<=60;lat+=30){const ql=project(-90,lat,R),qr=project(90,lat,R);if(ql.z>.35){ctx.textAlign='right';ctx.fillText(`${Math.abs(lat)}° ${lat<0?'S':'N'}`,ql.x-5,ql.y+3);}if(qr.z>.35){ctx.textAlign='left';ctx.fillText(`${Math.abs(lat)}° ${lat<0?'S':'N'}`,qr.x+5,qr.y+3);}}
+  for(let lon=-150;lon<=180;lon+=30){const qt=project(lon,0,R);if(qt.z>.65){ctx.textAlign='center';ctx.fillText(`${Math.abs(lon)}°${lon<0?'W':lon>0?'E':''}`,qt.x,qt.y+R*.025+12);}}ctx.textAlign='left';
+  if(spinning){const p=Math.min(1,(t-spinStart)/3700);yaw=spinFrom+(spinTo-spinFrom)*(1-Math.pow(1-p,3));pitch=targetPitch;if(p>=1){spinning=false;settledAt=t;}}
+  else if(settledAt&&t-settledAt<1200){yaw+=(targetYaw-yaw)*.045;pitch+=(targetPitch-pitch)*.045;}
+  else if(settledAt)yaw=targetYaw+Math.sin((t-settledAt)/4500)*.025;
+  raf=requestAnimationFrame(draw);
+ }
+ function setPosition(lat,lon){marker=[lat,lon];targetYaw=-rad(lon);targetPitch=rad(lat);}
+ function start(){active=true;resize();yaw=0;pitch=0;spinFrom=0;spinTo=targetYaw+TAU*3;spinStart=performance.now();spinning=true;raf=requestAnimationFrame(draw);}
+ function stop(){active=false;if(raf)cancelAnimationFrame(raf);}
+ canvas.addEventListener('pointerdown',e=>{dragging=true;lastX=e.clientX;lastY=e.clientY;canvas.setPointerCapture?.(e.pointerId);});canvas.addEventListener('pointermove',e=>{if(!dragging)return;yaw+=(e.clientX-lastX)*.006;pitch=clamp(pitch+(e.clientY-lastY)*.006,-1.35,1.35);lastX=e.clientX;lastY=e.clientY;spinning=false;settledAt=0;});canvas.addEventListener('pointerup',()=>dragging=false);canvas.addEventListener('pointercancel',()=>dragging=false);
+ new ResizeObserver(resize).observe(canvas);earthRenderer={setPosition,start,stop};
+  // Natural Earth 1:10m country boundaries; the bundled simplified outlines remain as an offline fallback.
+  fetch('https://cdn.jsdelivr.net/gh/nvkelso/natural-earth-vector@master/geojson/ne_10m_admin_0_countries.geojson',{cache:'force-cache'}).then(r=>{if(!r.ok)throw new Error('Cartography unavailable');return r.json();}).then(data=>{const out=[];for(const f of data.features||[]){const g=f.geometry;if(!g)continue;const polygons=g.type==='Polygon'?[g.coordinates]:g.type==='MultiPolygon'?g.coordinates:[];for(const poly of polygons){if(poly[0]?.length>2)out.push(poly[0]);}}detailedCoastlines=out;}).catch(()=>{});
+  return earthRenderer;
+}
+function revealInstrument(lat,lon,label,accuracy=null){
+ playCompendiumRotationSound();
+ setObserverLocation(lat,lon,label);
+ const earth=createEarthRenderer();
+ if(earth){earth.setPosition(lat,lon);earth.start();}
+ $('#instrumentLocation').textContent=`WGS 84 · ${label} · ${formatCoordinate(lat,'N','S')} · ${formatCoordinate(lon,'E','W')}${Number.isFinite(accuracy)?` · ±${Math.round(accuracy)} M`:''}`;
+ $('#instrumentLabel').textContent='ROTATING TO OBSERVER';
+ $('#locationChoice').classList.add('choice-out');
+ arrival.classList.remove('location-phase');
+ arrival.classList.add('instrument-phase');
+ $('#arrivalStatusText').textContent='ESTABLISHING GLOBAL POSITION';
+ $('#arrivalProgressLabel').textContent='03 / GLOBE';
+ setTimeout(()=>$('#compendiumReveal').classList.add('instrument-spinning'),180);
+ setTimeout(()=>{
+  $('#compendiumReveal').classList.remove('instrument-spinning');
+  $('#compendiumReveal').classList.add('instrument-settled');
+  $('#instrumentLabel').textContent='OBSERVER POSITION ESTABLISHED';
+  $('#arrivalStatusText').textContent='POSITION ACQUIRED';
+  $('#arrivalProgressLabel').textContent='04 / POSITION';
+ },3800);
+ setTimeout(()=>{
+  // The globe must leave completely before the loading title is revealed.
+  arrival.classList.add('archive-loading');
+  $('#compendiumReveal').setAttribute('aria-hidden','true');
+  const copy=$('#cinemaCopy');
+  copy.classList.remove('beat-out');
+  $('#sequenceKicker').lastElementChild.textContent='COMPENDIUM I';
+  $('#cinemaTitle').innerHTML='Loading<br><em>Compendium.</em>';
+  $('#sequenceLine').textContent='Preparing the archive.';
+  $('#cinemaReadout').textContent='';
+  copy.classList.add('loading-copy');
+  copy.classList.remove('beat-in');
+  $('#arrivalStatusText').textContent='POSITION ACQUIRED';
+  $('#arrivalProgressLabel').textContent='04 / POSITION';
+  // Reveal the loading title only after the globe's exit transition has completed.
+  setTimeout(()=>{arrival.classList.add('archive-copy-reveal');$('#arrivalStatusText').textContent='LOADING COMPENDIUM';$('#arrivalProgressLabel').textContent='05 / OPENING';},560);
+ },4700);
+ setTimeout(()=>{if(earth)earth.stop();closeArrival();},7600);
+}
+function chooseLocation(){
+ prepareCompendiumAudio();
+ if(!navigator.geolocation){revealInstrument(FALLBACK_POSITION.lat,FALLBACK_POSITION.lon,FALLBACK_POSITION.label);return;}
+ $('#locateAndEnter').disabled=true;
+ $('#sequenceKicker').lastElementChild.textContent='REQUESTING POSITION';
+ $('#sequenceLine').textContent='Your browser will ask permission to use your location. The coordinates stay on this device.';
+ $('#arrivalStatusText').textContent='WAITING FOR LOCATION PERMISSION';
+ navigator.geolocation.getCurrentPosition(pos=>{
+  revealInstrument(pos.coords.latitude,pos.coords.longitude,'YOUR LOCATION',pos.coords.accuracy);
+ },()=>{
+  $('#sequenceLine').textContent='Location was unavailable. Using the Akure reference position.';
+  revealInstrument(FALLBACK_POSITION.lat,FALLBACK_POSITION.lon,FALLBACK_POSITION.label);
+ },{enableHighAccuracy:true,timeout:15000,maximumAge:0});
+}
+$('#locateAndEnter').addEventListener('click',chooseLocation);
+$('#enterWithoutLocation').addEventListener('click',()=>{prepareCompendiumAudio();revealInstrument(FALLBACK_POSITION.lat,FALLBACK_POSITION.lon,FALLBACK_POSITION.label);});
+startArrivalSequence();
+const now=new Date();let observerLat=7.2526,observerLon=5.1931,observerLabel='REFERENCE / AKURE';
 // Use the visitor's browser-local clock. Coordinates are requested only after an explicit action.
 const clock=()=>{const t=new Intl.DateTimeFormat('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(new Date());$('#localClock').textContent=`LOCAL TIME · ${t}`};clock();setInterval(clock,1000);
 function setObserverLocation(lat,lon,label){observerLat=lat;observerLon=lon;observerLabel=label;const latText=`${Math.abs(lat).toFixed(2)}° ${lat>=0?'N':'S'}`,lonText=`${Math.abs(lon).toFixed(2)}° ${lon>=0?'E':'W'}`;$('#heroLocation').textContent=`OBSERVER / ${label}`;$('#footerLocation').textContent=`${label.toUpperCase()} · ${latText} · ${lonText}`;$('#astroLatitude').value=lat;$('#armLatitude').value=lat;updateAstro();updateArm(false);updateNocturnal();}
