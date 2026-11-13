@@ -3,32 +3,62 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
     <meta name="theme-color" content="#11100d">
     <meta name="description"
-        content="The Favour Akintoye Compendium — products, systems, research and observations, arranged as a working digital instrumentarium.">
-    <title>Favour Akintoye — The Compendium</title>
+        content="The Favour Akintoye Compendium: products, systems, research and observations, arranged as a working digital instrumentarium.">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <link rel="canonical" href="https://favourakintoye.com/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Favour Akintoye">
+    <meta property="og:title" content="Favour Akintoye: The Compendium">
+    <meta property="og:description"
+        content="Products, systems, research and observations, arranged as a working digital instrumentarium.">
+    <meta property="og:url" content="https://favourakintoye.com/">
+    <meta property="og:image" content="https://favourakintoye.com/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Favour Akintoye: The Compendium, an astrolabe-style portfolio">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Favour Akintoye: The Compendium">
+    <meta name="twitter:description"
+        content="Products, systems, research and observations, arranged as a working digital instrumentarium.">
+    <meta name="twitter:image" content="https://favourakintoye.com/og-image.png">
+    <title>Favour Akintoye: The Compendium</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&family=Manrope:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=final-2">
 </head>
 
 <body class="arrival-open">
     <div class="grain" aria-hidden="true"></div>
-    <div class="arrival cinematic-arrival" id="arrival" role="dialog" aria-modal="true"
+    <div class="arrival cinematic-arrival" id="arrival" data-state="boot" role="dialog" aria-modal="true"
         aria-label="Loading the Compendium">
         <div class="arrival-grain" aria-hidden="true"></div>
+        <svg class="arrival-stars" aria-hidden="true"></svg>
+        <svg class="arrival-rings" viewBox="0 0 600 600" aria-hidden="true">
+            <circle class="tk" cx="300" cy="300" r="286" />
+            <circle class="rr" cx="300" cy="300" r="270" pathLength="1" />
+            <circle class="rr" cx="300" cy="300" r="225" pathLength="1" />
+            <ellipse class="rr" cx="300" cy="300" rx="205" ry="112" transform="rotate(-24 300 300)" pathLength="1" />
+            <circle class="rr" cx="300" cy="300" r="150" pathLength="1" />
+            <path class="rr" d="M300 24V576M24 300H576" pathLength="1" />
+        </svg>
         <div class="arrival-top"><span>FAVOUR AKINTOYE / COMPENDIUM I</span><span>AN INSTRUMENT FOR THE OBSERVER</span>
         </div>
+        <button class="arrival-skip skip-intro" id="skipArrival" type="button">SKIP INTRO</button>
         <div class="cinema-stage" id="cinemaStage">
             <div class="cinema-copy" id="cinemaCopy">
-                <div class="sequence-kicker" id="sequenceKicker"><i></i><span>INITIALISING</span></div>
-                <h2 id="cinemaTitle">Loading<br><em>Compendium.</em></h2>
-                <p class="sequence-line" id="sequenceLine">A record of things built, questions examined, and systems set
-                    in motion.</p>
+                <div class="sequence-kicker" id="sequenceKicker"><i></i><span></span></div>
+                <h2 id="cinemaTitle" aria-live="polite"></h2>
+                <p class="sequence-line" id="sequenceLine"></p>
                 <div class="cinema-readout" id="cinemaReadout" aria-live="polite"></div>
                 <div class="location-choice" id="locationChoice" hidden>
                     <p>Set the instrument to your position.</p>
@@ -69,7 +99,7 @@
             <div class="hero-copy">
                 <div class="eyebrow"><span></span> A RECORD OF THOUGHT & CONSTRUCTION</div>
                 <h1>A record of<br>what I <em>build.</em></h1>
-                <p class="hero-deck">PRODUCT BUILDER · FOUNDER · INDEPENDENT ANALYST</p>
+                <p class="hero-deck">NIGERIAN PRODUCT BUILDER · FOUNDER · INDEPENDENT ANALYST</p>
                 <p class="hero-description">I build products and operating systems, and examine the institutions and
                     markets around them. My work spans product, technology, growth and independent research.</p>
                 <div class="hero-proof"><span><b>PAYLA</b> Founder & product builder</span><span><b>AORTEM</b> 94
@@ -293,8 +323,8 @@
                             sky for a chosen latitude. Rotating the rete models the daily turning of the celestial
                             sphere against the local horizon.</p>
                         <div class="control-block"><label for="astroLatitude">PLATE / LATITUDE <output
-                                    id="astroLatOut">7.38° N</output></label><input id="astroLatitude" type="range"
-                                min="-60" max="65" step="0.01" value="7.38">
+                                    id="astroLatOut">7.25° N</output></label><input id="astroLatitude" type="range"
+                                min="-60" max="65" step="0.01" value="7.25">
                             <div class="range-ends"><span>60° S</span><span>65° N</span></div>
                         </div>
                         <div class="control-block"><label for="astroDate">DATE <output
@@ -309,12 +339,13 @@
                             <div><span>RETE / OFFSET</span><b id="reteAngleReadout">000°</b></div>
                         </div>
                         <div class="button-row"><button class="action-button" id="astroReset">RESET RETE</button><button
-                                class="quiet-button" id="astroExplain">EXAMINE THE PARTS +</button></div>
+                                class="action-button" id="observerNow">SET TO NOW</button><button class="quiet-button"
+                                id="astroExplain">EXAMINE THE PARTS +</button></div>
                         <div class="part-notes" id="astroParts">
-                            <p><b>MATER</b> — the body and graduated limb that holds the instrument.</p>
-                            <p><b>TYMPAN</b> — the latitude-specific projection of the local sky.</p>
-                            <p><b>RETE</b> — the rotating star map and ecliptic.</p>
-                            <p><b>RULE</b> — an index for reading alignments and scales.</p>
+                            <p><b>MATER</b>: the body and graduated limb that holds the instrument.</p>
+                            <p><b>TYMPAN</b>: the latitude-specific projection of the local sky.</p>
+                            <p><b>RETE</b>: the rotating star map and ecliptic.</p>
+                            <p><b>RULE</b>: an index for reading alignments and scales.</p>
                             <p class="micro-note">Solar position is calculated from date, local time, latitude and
                                 longitude using NOAA's approximate solar-position equations. The drawn rete is an
                                 educational stereographic model, not a calibrated historical replica.</p>
@@ -376,8 +407,8 @@
                             the date: the instrument changes its orientation and shows how the celestial equator,
                             ecliptic and local horizon relate.</p>
                         <div class="control-block"><label for="armLatitude">OBSERVER LATITUDE <output
-                                    id="armLatOut">7.38° N</output></label><input id="armLatitude" type="range"
-                                min="-66" max="66" step="0.1" value="7.38"></div>
+                                    id="armLatOut">7.25° N</output></label><input id="armLatitude" type="range"
+                                min="-66" max="66" step="0.1" value="7.25"></div>
                         <div class="control-block"><label for="armDay">DAY OF YEAR <output id="armDayOut">DAY
                                     315</output></label><input id="armDay" type="range" min="1" max="365" value="315">
                         </div>
@@ -388,10 +419,10 @@
                         <div class="button-row"><button class="action-button" id="armReset">RESET
                                 LATITUDE</button><button class="quiet-button" id="armExplain">RING KEY +</button></div>
                         <div class="part-notes" id="armNotes">
-                            <p><b>EQUATOR</b> — celestial equator, projected from Earth's equator.</p>
-                            <p><b>ECLIPTIC</b> — apparent annual path of the Sun.</p>
-                            <p><b>TROPICS</b> — declination limits of the Sun, approximately ±23.44°.</p>
-                            <p><b>HORIZON</b> — local boundary between visible and hidden sky.</p>
+                            <p><b>EQUATOR</b>: celestial equator, projected from Earth's equator.</p>
+                            <p><b>ECLIPTIC</b>: apparent annual path of the Sun.</p>
+                            <p><b>TROPICS</b>: declination limits of the Sun, approximately ±23.44°.</p>
+                            <p><b>HORIZON</b>: local boundary between visible and hidden sky.</p>
                         </div>
                     </div>
                 </div>
@@ -505,7 +536,7 @@
                     <h2>A body of work,<br><em>in time.</em></h2>
                 </div>
                 <p>The nocturnal's calendar and rotating index become a chronology. Select a year to reveal the
-                    corresponding work.</p>
+                    corresponding work, rather than merely moving a decorative pointer.</p>
             </div>
             <div class="nocturnal-layout">
                 <div class="nocturnal"><svg id="nocturnalSvg" viewBox="0 0 500 500" role="img"
@@ -600,9 +631,11 @@
             </div>
         </section>
     </main>
-    <footer class="footer"><a href="#threshold">FAVOUR / COMPENDIUM</a><span>THE RECORD IS OPEN TO REVISION.</span><a
-            href="#threshold">RETURN TO THE THRESHOLD ↑</a></footer>
-    <script src="app.js"></script>
+    <footer class="footer"><a href="#threshold">FA / COMPENDIUM</a><span>THE RECORD IS OPEN TO REVISION.</span><button
+            class="replay-arrival" id="replayArrival" type="button">REPLAY ARRIVAL</button><a href="#threshold">RETURN
+            TO THE THRESHOLD ↑</a></footer>
+    <script src="globe-data.js"></script>
+    <script src="app.js?v=final-6"></script>
 </body>
 
 </html>
